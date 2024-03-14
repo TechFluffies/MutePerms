@@ -3,6 +3,7 @@ package me.tallonscze.muteperms;
 
 import com.mojang.logging.LogUtils;
 import me.tallonscze.muteperms.client.ClientSideOnly;
+import me.tallonscze.muteperms.config.Config;
 import me.tallonscze.muteperms.item.ItemRegistry;
 import me.tallonscze.muteperms.item.MuteCoinItem;
 import me.tallonscze.muteperms.network.PacketHandler;
@@ -20,7 +21,9 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -40,8 +43,7 @@ public class Muteperms {
 
     public static final String MODID = "muteperms";
     public static final String PROTOCOL_VERSION = "1";
-
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final String MUTED_NAME = "§kdFasfiíagoah";
 
 
     public Muteperms() {
@@ -58,6 +60,8 @@ public class Muteperms {
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientSideOnly.INSTANCE::init);
         DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> ServerSideOnly.INSTANCE::init);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(FMLCommonSetupEvent event)
@@ -79,7 +83,7 @@ public class Muteperms {
             return;
 
         if (PLAYER_MUTE_STATUS.get(player.getUUID())) {
-            event.setDisplayname(Component.literal("§kmuted"));
+            event.setDisplayname(Component.literal(Muteperms.MUTED_NAME));
         } else {
             event.setDisplayname(event.getDisplayname());
         }

@@ -1,5 +1,6 @@
 package me.tallonscze.muteperms.server;
 
+import com.mojang.logging.LogUtils;
 import me.tallonscze.muteperms.Muteperms;
 import me.tallonscze.muteperms.network.PacketHandler;
 import me.tallonscze.muteperms.network.UpdateNameFormatPacket;
@@ -13,6 +14,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.slf4j.Logger;
 
 @OnlyIn(Dist.DEDICATED_SERVER)
 public class ServerSideOnly {
@@ -26,6 +28,11 @@ public class ServerSideOnly {
 
     @SubscribeEvent
     public void onServerChat(ServerChatEvent event) {
+        if (!MuteCommand.UNMUTED_PLAYERS.contains(event.getPlayer().getUUID().toString()))
+        {
+            event.setCanceled(true);
+        }
+
         //event.setCanceled(true);
         //event.getPlayer().sendSystemMessage(Component.literal("<"+event.getPlayer().getName().getString()+">"+event.getMessage().getString()));
         //event.getPlayer().refreshTabListName();
@@ -44,7 +51,7 @@ public class ServerSideOnly {
 
         if (getMutedCoinOn(player))
         {
-            event.setDisplayName(Component.literal("§kdFasfiíagoah"));
+            event.setDisplayName(Component.literal(Muteperms.MUTED_NAME));
         }
         else
         {
