@@ -1,9 +1,11 @@
 package me.tallonscze.muteperms.item;
 
 import com.mojang.logging.LogUtils;
+import me.tallonscze.muteperms.Muteperms;
 import me.tallonscze.muteperms.network.PacketHandler;
 import me.tallonscze.muteperms.network.UpdateNameFormatPacket;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,8 +31,14 @@ public class MuteCoinItem extends Item {
             deathPersistentData.putBoolean("OnUseCoin", true);
             persistentData.put(Player.PERSISTED_NBT_TAG, deathPersistentData);
 
-            LOGGER.info("Sending equip packet.");
-            PacketHandler.sendToAllClients(new UpdateNameFormatPacket(player.getUUID()));
+            PacketHandler.sendToAllClients(new UpdateNameFormatPacket(player.getUUID(), true));
+            Muteperms.PLAYER_MUTE_STATUS.put(player.getUUID(), true);
+            player.refreshDisplayName();
+
+            if (!player.level().isClientSide) {
+                ServerPlayer serverPlayer = (ServerPlayer) player;
+                serverPlayer.refreshTabListName();
+            }
 
             ICurioItem.super.onEquip(slotContext, prevStack, stack);
         }
@@ -46,7 +54,14 @@ public class MuteCoinItem extends Item {
             deathPersistentData.putBoolean("OnUseCoin", false);
             persistentData.put(Player.PERSISTED_NBT_TAG, deathPersistentData);
 
-            PacketHandler.sendToAllClients(new UpdateNameFormatPacket(player.getUUID()));
+            PacketHandler.sendToAllClients(new UpdateNameFormatPacket(player.getUUID(), false));
+            Muteperms.PLAYER_MUTE_STATUS.put(player.getUUID(), false);
+            player.refreshDisplayName();
+
+            if (!player.level().isClientSide) {
+                ServerPlayer serverPlayer = (ServerPlayer) player;
+                serverPlayer.refreshTabListName();
+            }
 
             ICurioItem.super.onUnequip(slotContext, newStack, stack);
         }

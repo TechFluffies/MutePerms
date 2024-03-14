@@ -2,10 +2,13 @@ package me.tallonscze.muteperms.network;
 
 import me.tallonscze.muteperms.Muteperms;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.Optional;
 
 public class PacketHandler {
 
@@ -22,11 +25,17 @@ public class PacketHandler {
                 .decoder(UpdateNameFormatPacket::new)
                 .consumerMainThread(UpdateNameFormatPacket::handle)
                 .add();
+
     }
 
     public static void sendToServer(Object obj)
     {
         CHANNEL.sendToServer(obj);
+    }
+
+    public static void sendToClient(ServerPlayer player, Object obj)
+    {
+        CHANNEL.sendTo(obj, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     public static void sendToAllClients(Object obj)
